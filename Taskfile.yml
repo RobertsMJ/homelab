@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3"
+
+tasks:
+  install-deps:
+    desc: Install dependencies
+    cmds:
+      - brew install fluxcd/tap/flux
+    silent: true
