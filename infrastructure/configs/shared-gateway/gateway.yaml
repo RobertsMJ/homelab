@@ -13,7 +13,7 @@ spec:
         namespaces:
           from: All
     - name: https
-      protocol: HTTP
+      protocol: HTTPS
       port: 443
       hostname: "*.yggdrasil.home.arpa"
       tls:
