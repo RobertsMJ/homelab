@@ -29,4 +29,4 @@ spec:
       interval: 30s
     web:
       enabled: true
-      baseURL: https://yggdrasil/flux
+      baseURL: https://flux.yggdrasil.home
