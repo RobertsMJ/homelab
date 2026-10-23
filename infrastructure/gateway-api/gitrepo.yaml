@@ -8,3 +8,7 @@ spec:
   url: https://github.com/kubernetes-sigs/gateway-api
   ref:
     semver: "^1.6.3"
+  ignore: |
+    /*
+    !/config/crd/
+

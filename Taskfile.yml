@@ -6,5 +6,5 @@ tasks:
   install-deps:
     desc: Install dependencies
     cmds:
-      - brew install fluxcd/tap/flux controlplaneio-fluxcd/tap/flux-operator kubectx
+      - brew install helm fluxcd/tap/flux controlplaneio-fluxcd/tap/flux-operator kubectx
     silent: true
