@@ -9,12 +9,12 @@ spec:
       namespace: gateway
       sectionName: https
   hostnames:
-    - yggdrasil
+    - flux.yggdrasil
   rules:
     - matches:
         - path:
             type: PathPrefix
-            value: "/flux"
+            value: /
       backendRefs:
         - name: flux-operator
           port: 9080
