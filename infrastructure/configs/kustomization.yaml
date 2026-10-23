@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - ./pki
   - ./shared-gateway
+  - ./flux-web
