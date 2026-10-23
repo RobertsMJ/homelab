@@ -53,3 +53,9 @@ tasks:
     cmds:
       - for: { var: CLUSTERS }
         cmd: flux get ks --context {{.ITEM}} && flux get hr -A --context {{.ITEM}}
+
+  export-public-cert:
+    desc: Export public certificate
+    cmds:
+      - kubectl -n cert-manager get secret yggdrasil-ca -o jsonpath='{.data.ca\.crt}' | base64 -d > yggdrasil-ca.crt
+

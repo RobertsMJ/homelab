@@ -15,7 +15,6 @@ spec:
     - name: https
       protocol: HTTPS
       port: 443
-      hostname: "*.yggdrasil.home.arpa"
       tls:
         mode: Terminate
         certificateRefs:

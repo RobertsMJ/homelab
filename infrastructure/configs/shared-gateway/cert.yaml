@@ -6,7 +6,7 @@ metadata:
 spec:
   secretName: wildcard-tls
   dnsNames:
-    - "*.yggdrasil.home.arpa"
+    - "*.yggdrasil"
     - yggdrasil
   issuerRef:
     kind: ClusterIssuer
