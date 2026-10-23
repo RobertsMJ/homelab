@@ -9,7 +9,7 @@ spec:
       namespace: gateway
       sectionName: https
   hostnames:
-    - flux.yggdrasil
+    - flux.yggdrasil.home
   rules:
     - matches:
         - path:
