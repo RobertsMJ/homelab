@@ -24,3 +24,8 @@ spec:
   chartRef:
     kind: OCIRepository
     name: flux-operator
+  values:
+    reporting:
+      interval: 30s
+    web:
+      enabled: true
