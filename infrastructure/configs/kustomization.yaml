@@ -4,3 +4,4 @@ resources:
   - ./pki
   - ./shared-gateway
   - ./flux-web
+  - ./grafana
