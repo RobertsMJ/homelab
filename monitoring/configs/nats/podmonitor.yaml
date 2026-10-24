@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: nats
+spec:
+  namespaceSelector:
+    matchNames:
+      - nats
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nats
+      app.kubernetes.io/component: nats
+  podMetricsEndpoints:
+    - port: prom-metrics

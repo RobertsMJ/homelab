@@ -4,3 +4,4 @@ namespace: monitoring
 resources:
   - ./grafana
   - ./flux
+  - ./nats

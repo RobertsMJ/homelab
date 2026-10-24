@@ -1,0 +1,128 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: nats
+  namespace: nats
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: nats
+      version: "2.15.x"
+      sourceRef:
+        kind: HelmRepository
+        name: nats
+  values:
+    config:
+      jetstream:
+        enabled: true
+        fileStore:
+          enabled: true
+          pvc:
+            size: 1Gi
+            storageClassName: local-path
+        memoryStore:
+          enabled: true
+          # Keep well below the container memory limit
+          maxSize: 64Mi
+      # Single node cluster, so clustering adds overhead without any HA benefit
+      cluster:
+        enabled: false
+    container:
+      env:
+        GOMEMLIMIT: 200MiB
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          cpu: 250m
+          memory: 256Mi
+    # Sidecar exposing prometheus metrics; the PodMonitor lives in monitoring/configs/nats
+    promExporter:
+      enabled: true
+      merge:
+        resources:
+          requests:
+            cpu: 10m
+            memory: 16Mi
+          limits:
+            memory: 32Mi
+      # Label series by the stable server name (pod name) instead of the random
+      # server ID that changes on every restart. The test op fails the render
+      # if a chart upgrade moves the arg.
+      patch:
+        - op: test
+          path: /args/6
+          value: -use_internal_server_id
+        - op: replace
+          path: /args/6
+          value: -use_server_name
+    # nui covers interactive use
+    natsBox:
+      enabled: false
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: nack
+  namespace: nats
+spec:
+  interval: 1h
+  dependsOn:
+    - name: nats
+  chart:
+    spec:
+      chart: nack
+      version: "0.35.x"
+      sourceRef:
+        kind: HelmRepository
+        name: nats
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace
+  values:
+    jetstream:
+      nats:
+        url: nats://nats.nats.svc.cluster.local:4222
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        memory: 64Mi
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: nui
+  namespace: nats
+spec:
+  interval: 1h
+  dependsOn:
+    - name: nats
+  chart:
+    spec:
+      chart: nui
+      version: "0.1.x"
+      sourceRef:
+        kind: HelmRepository
+        name: nui
+  values:
+    # The chart defaults to the mutable latest tag
+    image:
+      tag: "0.10.0"
+      pullPolicy: IfNotPresent
+    autoloadContexts: true
+    contextsVolume:
+      name: nui-cli-contexts
+      items:
+        - key: context1.json
+          path: context1.json
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        memory: 128Mi

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nui-cli-contexts
+  namespace: nats
+type: Opaque
+stringData:
+  context1.json: |
+    {
+      "name": "nats",
+      "url": "nats://nats.nats.svc.cluster.local:4222"
+    }
