@@ -57,7 +57,7 @@ spec:
           value: -use_internal_server_id
         - op: replace
           path: /args/6
-          value: -use_server_name
+          value: -use_internal_server_name
     # nui covers interactive use
     natsBox:
       enabled: false
