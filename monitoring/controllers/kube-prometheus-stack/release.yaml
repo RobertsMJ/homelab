@@ -9,6 +9,17 @@ spec:
     kind: OCIRepository
     name: kube-prometheus-stack
     namespace: flux-system
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace
+  driftDetection:
+    mode: enabled
+    ignore:
+      # Ignore "validated" annotation which is not inserted during install
+      - paths: ["/metadata/annotations/prometheus-operator-validated"]
+        target:
+          kind: PrometheusRule
   values:
     cleanPrometheusOperatorObjectNames: true
     kubeControllerManager:
@@ -17,10 +28,12 @@ spec:
       enabled: false
     kubeEtcd:
       enabled: false
-    crds:
+    kubeProxy:
       enabled: false
     alertmanager:
       enabled: false
+    crds:
+      enabled: true
     grafana:
       # TODO
       # admin:
@@ -31,12 +44,12 @@ spec:
         requests:
           cpu: 50m
           memory: 128Mi
-        # limits:
-        #   cpu: 200m
-        #   memory: 256Mi
+          # limits:
+          #   cpu: 200m
+          #   memory: 256Mi
     prometheus:
       prometheusSpec:
-        retention: 2d
+        retention: 24h
         storageSpec:
           volumeClaimTemplate:
             spec:

@@ -6,8 +6,8 @@ metadata:
 spec:
   interval: 24h
   url: oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack
+  ref:
+    semver: "92.x"
   layerSelector:
     mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
     operation: copy
-  ref:
-    semver: "92.13.x"

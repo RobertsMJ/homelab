@@ -1,8 +1,6 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
-
 set: [pipefail]
-
 vars:
   # Each dir under clusters/ is a cluster whose kube context has the same name.
   # Override to target a subset: task diff CLUSTERS=yggdrasil
@@ -11,51 +9,46 @@ vars:
   # Every dir with a kustomization.yaml (infrastructure/*, apps/*, and their children)
   KUSTOMIZE_DIRS:
     sh: find . -name kustomization.yaml -not -path './.git/*' -printf '%h\n' | sort
-
 env:
   # The backticks stop Task from expanding kubeconform's own {{.Group}} placeholders
   KUBECONFORM_FLAGS: >-
-    -strict -summary
-    -schema-location default
-    -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{`{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}`}}.json
-
+    -strict -summary -schema-location default -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{`{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}`}}.json
 tasks:
   install-deps:
     desc: Install dependencies
-    cmd: brew install helm kubeconform fluxcd/tap/flux controlplaneio-fluxcd/tap/flux-operator kubectx
-
+    cmds:
+      - brew install helm kubeconform fluxcd/tap/flux controlplaneio-fluxcd/tap/flux-operator kubectx
+      - go install github.com/google/yamlfmt/cmd/yamlfmt@latest
+  format:
+    desc: Format yaml
+    cmd: yamlfmt .
   validate:
     desc: Offline checks for every cluster dir and kustomize root
     cmds:
-      - for: { var: CLUSTERS }
+      - for: {var: CLUSTERS}
         cmd: kubeconform $KUBECONFORM_FLAGS clusters/{{.ITEM}}
-      - for: { var: CLUSTERS }
+      - for: {var: CLUSTERS}
         cmd: flux-operator build instance -f clusters/{{.ITEM}}/flux-instance.yaml > /dev/null
-      - for: { var: KUSTOMIZE_DIRS }
+      - for: {var: KUSTOMIZE_DIRS}
         cmd: kubectl kustomize {{.ITEM}} | kubeconform $KUBECONFORM_FLAGS
-
   diff:
     desc: Diff the local tree against each live cluster (server-side dry run)
     cmds:
       # flux diff exits 1 when there are changes, >1 on errors; only the latter should fail
-      - for: { var: CLUSTERS }
+      - for: {var: CLUSTERS}
         cmd: flux diff ks flux-system --context {{.ITEM}} --path clusters/{{.ITEM}} --recursive --local-sources GitRepository/flux-system/flux-system=. || [ $? -eq 1 ]
-
   reconcile:
     desc: Pull the latest commit and reconcile each cluster now
     cmds:
-      - for: { var: CLUSTERS }
+      - for: {var: CLUSTERS}
         cmd: flux reconcile ks flux-system --with-source --context {{.ITEM}}
       - task: status
-
   status:
     desc: Show Flux Kustomizations and HelmReleases on each cluster
     cmds:
-      - for: { var: CLUSTERS }
+      - for: {var: CLUSTERS}
         cmd: flux get ks --context {{.ITEM}} && flux get hr -A --context {{.ITEM}}
-
   export-public-cert:
     desc: Export public certificate
     cmds:
       - kubectl -n cert-manager get secret yggdrasil-ca -o jsonpath='{.data.ca\.crt}' | base64 -d > yggdrasil-ca.crt
-
