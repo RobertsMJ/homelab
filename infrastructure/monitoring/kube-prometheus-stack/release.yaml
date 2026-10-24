@@ -38,11 +38,13 @@ spec:
       prometheusSpec:
         retention: 2d
         storageSpec:
-          storageClassName: "local-path"
-          accessModes: ["ReadWriteOnce"]
-          resources:
-            requests:
-              storage: 5Gi
+          volumeClaimTemplate:
+            spec:
+              storageClassName: "local-path"
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 5Gi
         resources:
           requests:
             cpu: 100m
