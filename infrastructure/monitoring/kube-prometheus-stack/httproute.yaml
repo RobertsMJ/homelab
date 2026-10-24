@@ -5,10 +5,9 @@ metadata:
   namespace: monitoring
 spec:
   parentRefs:
-    - group: gateway.networking.k8s.io
-      name: shared-gateway
-      kind: Gateway
+    - name: shared-gateway
       namespace: gateway
+      sectionName: https
   hostnames:
     - grafana.yggdrasil.home
   rules:
