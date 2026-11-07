@@ -1,0 +1,49 @@
+name: validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  # Keep these in step with your local tools; Renovate bumps them via the comments below.
+  # kubectl comes preinstalled on the runner image.
+  # renovate: datasource=github-releases depName=go-task/task
+  TASK_VERSION: v3.54.0
+  # renovate: datasource=github-releases depName=yannh/kubeconform
+  KUBECONFORM_VERSION: v0.8.0
+  # renovate: datasource=github-releases depName=controlplaneio-fluxcd/flux-operator
+  FLUX_OPERATOR_VERSION: v0.62.1
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # Backstop for commits made without the pre-commit hook. It runs after the push, so treat a failure as "rotate the secret".
+      - name: Check every *.sops.yaml has SOPS metadata
+        shell: bash
+        run: |
+          fail=0
+          while IFS= read -r -d '' f; do
+            if ! grep -q '^sops:' "$f"; then
+              echo "::error file=$f::$f is not SOPS-encrypted"
+              fail=1
+            fi
+          done < <(git ls-files -z -- '*.sops.yaml' ':(exclude,glob)**/.sops.yaml')
+          exit $fail
+      - name: Install tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          bin="$HOME/.local/bin"
+          mkdir -p "$bin"
+          curl -fsSL "https://github.com/go-task/task/releases/download/${TASK_VERSION}/task_linux_amd64.tar.gz" | tar xz -C "$bin" task
+          curl -fsSL "https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz" | tar xz -C "$bin" kubeconform
+          curl -fsSL "https://github.com/controlplaneio-fluxcd/flux-operator/releases/download/${FLUX_OPERATOR_VERSION}/flux-operator_${FLUX_OPERATOR_VERSION#v}_linux_amd64.tar.gz" | tar xz -C "$bin" flux-operator
+          echo "$bin" >> "$GITHUB_PATH"
+      - run: task validate

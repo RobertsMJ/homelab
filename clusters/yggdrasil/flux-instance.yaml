@@ -5,7 +5,8 @@ metadata:
   namespace: flux-system
 spec:
   distribution:
-    version: "2.9.x"
+    # The operator runs the newest Flux 2.x it supports; Flux minor upgrades arrive with flux-operator chart bumps.
+    version: "2.x"
     registry: "ghcr.io/fluxcd"
   components:
     - source-controller
