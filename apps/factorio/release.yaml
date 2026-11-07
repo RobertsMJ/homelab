@@ -12,6 +12,9 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: factorio
+  valuesFrom:
+    - kind: ConfigMap
+      name: factorio-map-settings
   values:
     resources:
       requests:
@@ -24,9 +27,5 @@ spec:
     serverPassword:
       passwordSecret: factorio-server-password
     server_settings:
-      name: chips funhouse
+      name: old chips fun server
       require_user_verification: true
-    map_settings:
-      enemy_expansion:
-        evolution_group_size_factor: 4
-        min_expansion_distance: 3

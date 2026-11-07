@@ -6,3 +6,9 @@ resources:
   - ./repository.yaml
   - ./release.yaml
   - ./httproute.yaml
+configMapGenerator:
+  - name: factorio-map-settings
+    files:
+      - values.yaml=deathworld_railworld_map_settings.yaml
+configurations:
+  - ./kustomizeconfig.yaml
