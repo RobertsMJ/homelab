@@ -1,0 +1,28 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: factorio
+  namespace: factorio
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: factorio
+      version: "2.5.x"
+      sourceRef:
+        kind: HelmRepository
+        name: factorio
+  values:
+    resources:
+      requests:
+        cpu: 1
+        memory: 1Gi
+    factorioServer:
+      saveName: "da_factory"
+      generate_new_save: true
+      load_latest_save: true
+    serverPassword:
+      passwordSecret: factorio-server-password
+    server_settings:
+      name: chips funhouse
+      require_user_verification: true
