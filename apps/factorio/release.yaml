@@ -21,11 +21,16 @@ spec:
         cpu: 1
         memory: 1Gi
     factorioServer:
-      saveName: "da_factory"
+      save_name: "da_factory"
       generate_new_save: true
       load_latest_save: true
     serverPassword:
-      passwordSecret: factorio-server-password
+      passwordSecret: server-password
     server_settings:
       name: old chips fun server
       require_user_verification: true
+    rcon:
+      passwordSecret: server-rcon-password
+      external: false
+    admin_list:
+      - old_chip

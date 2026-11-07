@@ -12,13 +12,24 @@ vars:
 env:
   # The backticks stop Task from expanding kubeconform's own {{.Group}} placeholders
   KUBECONFORM_FLAGS: >-
-    -strict -summary -schema-location default -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{`{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}`}}.json
+    -strict -skip Secret -summary -schema-location default -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{`{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}`}}.json
 tasks:
   install-deps:
     desc: Install dependencies
     cmds:
-      - brew install helm kubeconform fluxcd/tap/flux controlplaneio-fluxcd/tap/flux-operator kubectx
+      - brew install helm kubeconform fluxcd/tap/flux controlplaneio-fluxcd/tap/flux-operator kubectx age sops
       - go install github.com/google/yamlfmt/cmd/yamlfmt@latest
+      - git config core.hooksPath .githooks
+  bootstrap:
+    desc: Bootstrap the Flux system on the cluster. Requires the age secret key
+    cmds:
+      - kubectl create namespace flux-system --dry-run=client -o yaml | kubectl apply -f -
+      - kubectl create secret generic sops-age -n flux-system --from-file=age.agekey=$HOME/.config/sops/age/keys.txt
+      - helm upgrade --install flux-operator oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator --namespace flux-system
+      - kubectl apply -f clusters/{{.CLUSTER}}/flux-instance.yaml
+    preconditions:
+      - sh: test -f age.agekey
+        msg: "age.agekey not found in repo root"
   format:
     desc: Format yaml
     cmd: yamlfmt .

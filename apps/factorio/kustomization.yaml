@@ -3,9 +3,10 @@ kind: Kustomization
 namespace: factorio
 resources:
   - ./namespace.yaml
+  - ./server-password.sops.yaml
+  - ./server-rcon-password.sops.yaml
   - ./repository.yaml
   - ./release.yaml
-  - ./httproute.yaml
 configMapGenerator:
   - name: factorio-map-settings
     files:
