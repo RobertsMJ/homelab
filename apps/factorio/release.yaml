@@ -16,6 +16,7 @@ spec:
     - kind: ConfigMap
       name: factorio-map-settings
   values:
+    fullnameOverride: factorio
     resources:
       requests:
         cpu: 1
