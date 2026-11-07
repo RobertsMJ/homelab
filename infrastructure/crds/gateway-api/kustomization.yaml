@@ -1,5 +1,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - repository.yaml
-  - crds.yaml
+  # Standard channel, pinned. Bump the version deliberately and check the release notes first.
+  - https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.6.3/standard-install.yaml
+# Deleting these CRDs would cascade-delete every Gateway and HTTPRoute, so never let Flux prune them.
+commonAnnotations:
+  kustomize.toolkit.fluxcd.io/prune: disabled

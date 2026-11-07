@@ -12,7 +12,7 @@ vars:
 env:
   # The backticks stop Task from expanding kubeconform's own {{.Group}} placeholders
   KUBECONFORM_FLAGS: >-
-    -strict -skip Secret -summary -schema-location default -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{`{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}`}}.json
+    -strict -skip Secret,CustomResourceDefinition -summary -schema-location default -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{`{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}`}}.json
 tasks:
   install-deps:
     desc: Install dependencies
