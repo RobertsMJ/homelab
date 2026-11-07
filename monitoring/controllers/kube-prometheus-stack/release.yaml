@@ -35,11 +35,10 @@ spec:
     crds:
       enabled: true
     grafana:
-      # TODO
-      # admin:
-      #   existingSecret: grafana-admin
-      #   userKey: admin-user
-      #   passwordKey: admin-password
+      admin:
+        existingSecret: grafana-admin
+        userKey: admin-user
+        passwordKey: admin-password
       resources:
         requests:
           cpu: 50m

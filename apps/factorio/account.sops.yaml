@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: factorio-account
+  namespace: factorio
+type: Opaque
+stringData:
+  username: ENC[AES256_GCM,data:6Ls0Qfdwqqs=,iv:m/1zu5YxlmzWeDRYOVFjX1+T8JQ6DQB1Gfxe/qQgwg8=,tag:spjGSCsn9IWdxDNROmHwTw==,type:str]
+  token: ENC[AES256_GCM,data:MA5YnqD/d3/EviMGhRAFLKXu6LqDvCt1L2p5N4bM,iv:VmmMXijeZBy2W3uT9U7NkLJE3sY6FZz9iRzdnrWhtOA=,tag:pviMzUY5xOQS5UaxGbEVWA==,type:str]
+sops:
+  age:
+    - enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBubFZCa2hBL25oSWEvenRw
+        QlhNVjE1UEJBblJZNXVHM3FqTWZiVmRyQmpBCjZ1cXZKeUtkUS9JbHB3UHF3NWFx
+        NDBISWw2cE10dDhrVGE3cjkwUkwwL28KLS0tIEdnZ2QxNzRKRm43M2JWbkFpNWhK
+        Vks5NHhFeE1TZ1BoSUMzdi9qNHFmQVEKk1xATyXbQSLovtUCvnpqbrGQ1W8hN/Ah
+        w7uuJx9OJHf6ZEmllPgrl7cj/Kn4PeiHD/7hetIUGKwyuAoec9Swog==
+        -----END AGE ENCRYPTED FILE-----
+      recipient: age1usrqdq9pyv2fcwrc8etezfzqmeefq7llftjtzz9ws36p4cp6p3eqjqeyjf
+  encrypted_regex: ^(data|stringData)$
+  lastmodified: "2026-11-07T18:07:07Z"
+  mac: ENC[AES256_GCM,data:DHbnXAS7ScT+OH4DiWjY9CU07xJ9DqyeJkm8H52csWEi3yFM6yPR1Qdo4zCpBMFXU9rny+2UM6ZYcU9c6VFY+tvyxwn2zD+ORkJWMWkpvll+A8wL7WslpdFe5SGSoESzWznjWhEeON3HRPea7j6cYnQ1iQo1dsRSN5T9TvSvPHc=,iv:zlcvplhXsSMj+xRaBj8SJHJVgWvYaCEBiTTw9e0HylU=,tag:Nj4RHLlALgCePbLwHF4nYQ==,type:str]
+  version: 3.13.3

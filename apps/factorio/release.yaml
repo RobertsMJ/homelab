@@ -16,20 +16,26 @@ spec:
     - kind: ConfigMap
       name: factorio-map-settings
   values:
+    image:
+      repository: "factoriotools/factorio"
+      tag: "2.1.24"
     fullnameOverride: factorio
     resources:
       requests:
         cpu: 1
         memory: 1Gi
+    account:
+      accountSecret: factorio-account
     factorioServer:
       save_name: "da_factory"
       generate_new_save: true
       load_latest_save: true
+    server_settings:
+      name: "Chip's factorio server"
+      description: "Factorio running on yggdrasil"
+      require_user_verification: true
     serverPassword:
       passwordSecret: server-password
-    server_settings:
-      name: old chips fun server
-      require_user_verification: true
     rcon:
       passwordSecret: server-rcon-password
       external: false

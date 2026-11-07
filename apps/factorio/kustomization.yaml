@@ -5,6 +5,7 @@ resources:
   - ./namespace.yaml
   - ./server-password.sops.yaml
   - ./server-rcon-password.sops.yaml
+  - ./account.sops.yaml
   - ./repository.yaml
   - ./release.yaml
 configMapGenerator:
