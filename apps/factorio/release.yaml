@@ -16,9 +16,12 @@ spec:
     - kind: ConfigMap
       name: factorio-map-settings
   values:
+    nodeSelector:
+      kubernetes.io/hostname: helheim.home
     image:
       repository: "factoriotools/factorio"
       tag: "stable-2.1.24"
+      pullPolicy: IfNotPresent
     fullnameOverride: factorio
     resources:
       requests:
@@ -30,9 +33,10 @@ spec:
       save_name: "da_factory"
       generate_new_save: true
       load_latest_save: true
+    hostNetworkEnabled: false
     server_settings:
       name: "Chip's factorio server"
-      description: "Factorio running on yggdrasil"
+      description: "Factorio running in Kubernetes"
       require_user_verification: true
     serverPassword:
       passwordSecret: server-password

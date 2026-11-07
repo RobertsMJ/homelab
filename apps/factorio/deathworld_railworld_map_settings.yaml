@@ -214,7 +214,6 @@ map_gen_settings:
   starting_points:
     - x: 0
       "y": 0
-  seed: 3978163202
   width: 2000000
   height: 2000000
   starting_area: 0.75

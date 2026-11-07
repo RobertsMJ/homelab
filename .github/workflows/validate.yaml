@@ -1,13 +1,10 @@
 name: validate
-
 on:
   pull_request:
   push:
     branches: [main]
-
 permissions:
   contents: read
-
 env:
   # Keep these in step with your local tools; Renovate bumps them via the comments below.
   # kubectl comes preinstalled on the runner image.
@@ -17,7 +14,6 @@ env:
   KUBECONFORM_VERSION: v0.8.0
   # renovate: datasource=github-releases depName=controlplaneio-fluxcd/flux-operator
   FLUX_OPERATOR_VERSION: v0.62.1
-
 jobs:
   validate:
     name: validate

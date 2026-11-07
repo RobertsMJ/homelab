@@ -8,6 +8,7 @@ resources:
   - ./account.sops.yaml
   - ./repository.yaml
   - ./release.yaml
+  - ./networkpolicy.yaml
 configMapGenerator:
   - name: factorio-map-settings
     files:

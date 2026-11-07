@@ -63,3 +63,32 @@ tasks:
     desc: Export public certificate
     cmds:
       - kubectl -n cert-manager get secret yggdrasil-ca -o jsonpath='{.data.ca\.crt}' | base64 -d > yggdrasil-ca.crt
+  suspend:
+    desc: "Break-glass: suspend all Flux Kustomizations and HelmReleases"
+    silent: true
+    cmds:
+      - flux suspend ks --all -n flux-system
+      - |
+        for ns in $(kubectl get hr -A -o jsonpath='{range .items[*]}{.metadata.namespace}{"\n"}{end}' | sort -u); do
+          flux suspend hr --all -n "$ns"
+        done
+      - task: suspended
+  resume:
+    desc: Resume everything `task suspend` paused
+    silent: true
+    cmds:
+      - |
+        for ns in $(kubectl get hr -A -o jsonpath='{range .items[*]}{.metadata.namespace}{"\n"}{end}' | sort -u); do
+          flux resume hr --all -n "$ns" --wait=false
+        done
+      - flux resume ks --all -n flux-system --wait=false
+      - task: suspended
+  suspended:
+    desc: List suspended Flux resources
+    silent: true
+    cmds:
+      - |
+        kubectl get \
+          kustomizations.kustomize.toolkit.fluxcd.io,helmreleases.helm.toolkit.fluxcd.io,gitrepositories.source.toolkit.fluxcd.io,helmrepositories.source.toolkit.fluxcd.io,ocirepositories.source.toolkit.fluxcd.io \
+          -A -o jsonpath='{range .items[?(@.spec.suspend==true)]}{.kind}{"\t"}{.metadata.namespace}/{.metadata.name}{"\n"}{end}' \
+          | column -t
