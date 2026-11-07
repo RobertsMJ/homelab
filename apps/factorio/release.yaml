@@ -26,3 +26,6 @@ spec:
     server_settings:
       name: chips funhouse
       require_user_verification: true
+    map_settings:
+      evolution_group_size_factor: 4
+      min_expansion_distance: 3
