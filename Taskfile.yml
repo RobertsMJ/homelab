@@ -1,18 +1,15 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: "3"
-set: [pipefail]
+set: [errexit, pipefail]
 vars:
-  # Each dir under clusters/ is a cluster whose kube context has the same name.
-  # Override to target a subset: task diff CLUSTERS=yggdrasil
   CLUSTERS:
     sh: find clusters -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort
-  # Every dir with a kustomization.yaml, including bases and per-cluster overlays
-  KUSTOMIZE_DIRS:
-    sh: find . -name kustomization.yaml -not -path './.git/*' -printf '%h\n' | sort
+  CLUSTER: yggdrasil
+  # Gateway listeners have no hostname, so an HTTPRoute without hostnames catches every Host; https-redirect is the one intended catch-all
+  UNSCOPED_ROUTES: 'select(.kind == "HTTPRoute" and ((.spec.hostnames // []) | length) == 0 and (.metadata.namespace + "/" + .metadata.name) != "gateway/https-redirect") | " " + .metadata.namespace + "/" + .metadata.name'
 env:
-  # The backticks stop Task from expanding kubeconform's own {{.Group}} placeholders
   KUBECONFORM_FLAGS: >-
-    -strict -skip Secret,CustomResourceDefinition -summary -schema-location default -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{`{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}`}}.json
+    -strict -skip Secret,CustomResourceDefinition,ScyllaOperatorConfig -summary -schema-location default -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{`{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}`}}.json
 tasks:
   install-deps:
     desc: Install dependencies
@@ -21,82 +18,80 @@ tasks:
       - go install github.com/google/yamlfmt/cmd/yamlfmt@latest
       - git config core.hooksPath .githooks
   bootstrap:
-    desc: Bootstrap the Flux system on the cluster. Requires the age secret key
-    cmds:
-      - kubectl create namespace flux-system --dry-run=client -o yaml | kubectl apply -f -
-      - kubectl create secret generic sops-age -n flux-system --from-file=age.agekey=$HOME/.config/sops/age/keys.txt
-      - helm upgrade --install flux-operator oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator --namespace flux-system
-      - kubectl apply -f clusters/{{.CLUSTER}}/flux-instance.yaml
+    desc: Bootstrap Flux on CLUSTER. Installs the SOPS age key only if that cluster's Kustomizations decrypt with it
+    vars:
+      NEEDS_SOPS:
+        sh: "grep -q 'name: sops-age' clusters/{{.CLUSTER}}/*.yaml && echo true || echo false"
     preconditions:
-      - sh: test -f age.agekey
-        msg: "age.agekey not found in repo root"
+      - sh: test -d clusters/{{.CLUSTER}}
+        msg: "clusters/{{.CLUSTER}} does not exist"
+      - sh: kubectl config get-contexts {{.CLUSTER}} > /dev/null 2>&1
+        msg: "no kube context named {{.CLUSTER}}"
+      - sh: '[ {{.NEEDS_SOPS}} = false ] || test -f "$HOME/.config/sops/age/keys.txt"'
+        msg: "{{.CLUSTER}} decrypts SOPS but $HOME/.config/sops/age/keys.txt is missing"
+    cmds:
+      - kubectl create namespace flux-system --dry-run=client -o yaml | kubectl --context {{.CLUSTER}} apply -f -
+      - |
+        if [ {{.NEEDS_SOPS}} = true ]; then
+          kubectl --context {{.CLUSTER}} create secret generic sops-age -n flux-system --from-file=age.agekey="$HOME/.config/sops/age/keys.txt"
+        fi
+      - helm upgrade --install flux-operator oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator --namespace flux-system --kube-context {{.CLUSTER}}
+      - kubectl --context {{.CLUSTER}} apply -f clusters/{{.CLUSTER}}/flux-instance.yaml
   format:
     desc: Format yaml
-    cmd: yamlfmt .
+    cmd: yamlfmt
   validate:
-    desc: Offline checks for every cluster dir and kustomize root
+    desc: Offline checks of every cluster's Flux objects and the manifests each of its Kustomizations renders
     cmds:
-      - for: {var: CLUSTERS}
-        cmd: kubeconform $KUBECONFORM_FLAGS clusters/{{.ITEM}}
-      - for: {var: CLUSTERS}
-        cmd: flux-operator build instance -f clusters/{{.ITEM}}/flux-instance.yaml > /dev/null
-      - for: {var: KUSTOMIZE_DIRS}
-        cmd: kubectl kustomize {{.ITEM}} | kubeconform $KUBECONFORM_FLAGS
-      # The https listener has no hostname, so an HTTPRoute without hostnames catches every Host. Bases omit hostnames on purpose; each cluster's rendered paths must not.
       - for: {var: CLUSTERS}
         cmd: |
-          missing=""
+          kubeconform $KUBECONFORM_FLAGS clusters/{{.ITEM}}
+          flux-operator build instance -f clusters/{{.ITEM}}/flux-instance.yaml > /dev/null
           for p in $(yq ea -N 'select(.kind == "Kustomization" and .apiVersion == "kustomize.toolkit.fluxcd.io/v1") | .spec.path' clusters/{{.ITEM}}/*.yaml); do
-            missing="$missing$(kubectl kustomize "$p" | yq -N 'select(.kind == "HTTPRoute" and (.spec.parentRefs | any_c(.name == "shared-gateway" and (.sectionName // "https") == "https")) and ((.spec.hostnames // []) | length) == 0) | " " + .metadata.namespace + "/" + .metadata.name')"
+            out=$(kubectl kustomize "$p")
+            echo "$out" | kubeconform $KUBECONFORM_FLAGS
+            unscoped=$(echo "$out" | yq -N '{{.UNSCOPED_ROUTES}}')
+            if [ -n "$unscoped" ]; then echo "{{.ITEM}} $p: HTTPRoutes without hostnames:$unscoped" >&2; exit 1; fi
           done
-          if [ -n "$missing" ]; then echo "{{.ITEM}}: HTTPRoutes on the https listener without hostnames:$missing" >&2; exit 1; fi
   diff:
-    desc: Diff the local tree against each live cluster (server-side dry run)
-    cmds:
-      # flux diff exits 1 when there are changes, >1 on errors; only the latter should fail
-      - for: {var: CLUSTERS}
-        cmd: flux diff ks flux-system --context {{.ITEM}} --path clusters/{{.ITEM}} --recursive --local-sources GitRepository/flux-system/flux-system=. || [ $? -eq 1 ]
+    desc: Diff the local tree against CLUSTER (server-side dry run)
+    cmd: flux diff ks flux-system --context {{.CLUSTER}} --path clusters/{{.CLUSTER}} --recursive --local-sources GitRepository/flux-system/flux-system=. || [ $? -eq 1 ]
   reconcile:
-    desc: Pull the latest commit and reconcile each cluster now
+    desc: Pull the latest commit and reconcile CLUSTER now
     cmds:
-      - for: {var: CLUSTERS}
-        cmd: flux reconcile ks flux-system --with-source --context {{.ITEM}}
+      - flux reconcile ks flux-system --with-source --context {{.CLUSTER}}
       - task: status
   status:
-    desc: Show Flux Kustomizations and HelmReleases on each cluster
-    cmds:
-      - for: {var: CLUSTERS}
-        cmd: flux get ks --context {{.ITEM}} && flux get hr -A --context {{.ITEM}}
+    desc: Show every Flux resource on CLUSTER
+    cmd: flux-operator get all -A --kube-context {{.CLUSTER}}
   export-public-cert:
-    desc: Export public certificate
-    cmds:
-      - kubectl -n cert-manager get secret yggdrasil-ca -o jsonpath='{.data.ca\.crt}' | base64 -d > yggdrasil-ca.crt
+    desc: Export CLUSTER's CA certificate to <cluster>-ca.crt
+    cmd: kubectl --context {{.CLUSTER}} -n cert-manager get secret yggdrasil-ca -o jsonpath='{.data.ca\.crt}' | base64 -d > {{.CLUSTER}}-ca.crt
   suspend:
-    desc: "Break-glass: suspend all Flux Kustomizations and HelmReleases"
+    desc: "Break-glass: suspend all Flux Kustomizations and HelmReleases on CLUSTER"
     silent: true
     cmds:
-      - flux suspend ks --all -n flux-system
+      - flux suspend ks --all -n flux-system --context {{.CLUSTER}}
       - |
-        for ns in $(kubectl get hr -A -o jsonpath='{range .items[*]}{.metadata.namespace}{"\n"}{end}' | sort -u); do
-          flux suspend hr --all -n "$ns"
+        for ns in $(kubectl --context {{.CLUSTER}} get hr -A -o jsonpath='{range .items[*]}{.metadata.namespace}{"\n"}{end}' | sort -u); do
+          flux suspend hr --all -n "$ns" --context {{.CLUSTER}}
         done
       - task: suspended
   resume:
-    desc: Resume everything `task suspend` paused
+    desc: Resume everything `task suspend` paused on CLUSTER
     silent: true
     cmds:
       - |
-        for ns in $(kubectl get hr -A -o jsonpath='{range .items[*]}{.metadata.namespace}{"\n"}{end}' | sort -u); do
-          flux resume hr --all -n "$ns" --wait=false
+        for ns in $(kubectl --context {{.CLUSTER}} get hr -A -o jsonpath='{range .items[*]}{.metadata.namespace}{"\n"}{end}' | sort -u); do
+          flux resume hr --all -n "$ns" --wait=false --context {{.CLUSTER}}
         done
-      - flux resume ks --all -n flux-system --wait=false
+      - flux resume ks --all -n flux-system --wait=false --context {{.CLUSTER}}
       - task: suspended
   suspended:
-    desc: List suspended Flux resources
+    desc: List suspended Flux resources on CLUSTER
     silent: true
-    cmds:
-      - |
-        kubectl get \
-          kustomizations.kustomize.toolkit.fluxcd.io,helmreleases.helm.toolkit.fluxcd.io,gitrepositories.source.toolkit.fluxcd.io,helmrepositories.source.toolkit.fluxcd.io,ocirepositories.source.toolkit.fluxcd.io \
-          -A -o jsonpath='{range .items[?(@.spec.suspend==true)]}{.kind}{"\t"}{.metadata.namespace}/{.metadata.name}{"\n"}{end}' \
-          | column -t
+    cmd: |
+      kubectl --context {{.CLUSTER}} get \
+        kustomizations.kustomize.toolkit.fluxcd.io,helmreleases.helm.toolkit.fluxcd.io,gitrepositories.source.toolkit.fluxcd.io,helmrepositories.source.toolkit.fluxcd.io,ocirepositories.source.toolkit.fluxcd.io \
+        -A -o jsonpath='{range .items[?(@.spec.suspend==true)]}{.kind}{"\t"}{.metadata.namespace}/{.metadata.name}{"\n"}{end}' \
+        | column -t

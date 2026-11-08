@@ -1,0 +1,23 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: FluxInstance
+metadata:
+  name: flux
+  namespace: flux-system
+spec:
+  distribution:
+    # The operator runs the newest Flux 2.x it supports; Flux minor upgrades arrive with flux-operator chart bumps.
+    version: "2.x"
+    registry: "ghcr.io/fluxcd"
+  components:
+    - source-controller
+    - source-watcher
+    - kustomize-controller
+    - helm-controller
+    - notification-controller
+  cluster:
+    size: small
+  sync:
+    kind: GitRepository
+    url: "https://github.com/RobertsMJ/homelab.git"
+    ref: "refs/heads/main"
+    path: "clusters/k3d-dev-cluster"

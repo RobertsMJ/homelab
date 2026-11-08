@@ -1,0 +1,25 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: scylla-operator
+  namespace: scylla-operator
+spec:
+  interval: 1h
+  # The chart's webhook certificate is issued by cert-manager
+  dependsOn:
+    - name: cert-manager
+      namespace: cert-manager
+  chart:
+    spec:
+      chart: scylla-operator
+      version: "1.23.x"
+      sourceRef:
+        kind: HelmRepository
+        name: scylla
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace
+  values:
+    replicas: 1
+    webhookServerReplicas: 1
