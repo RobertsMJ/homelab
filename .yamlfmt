@@ -1,0 +1,5 @@
+doublestar: true
+include:
+  - "**/*.{yaml,yml}"
+exclude:
+  - "**/*.sops.yaml"

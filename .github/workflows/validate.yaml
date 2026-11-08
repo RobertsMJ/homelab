@@ -6,8 +6,6 @@ on:
 permissions:
   contents: read
 env:
-  # Keep these in step with your local tools; Renovate bumps them via the comments below.
-  # kubectl comes preinstalled on the runner image.
   # renovate: datasource=github-releases depName=go-task/task
   TASK_VERSION: v3.54.0
   # renovate: datasource=github-releases depName=yannh/kubeconform

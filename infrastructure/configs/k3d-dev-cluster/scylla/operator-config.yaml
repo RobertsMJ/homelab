@@ -1,0 +1,6 @@
+apiVersion: scylla.scylladb.com/v1alpha1
+kind: ScyllaOperatorConfig
+metadata:
+  name: cluster
+spec:
+  configuredClusterDomain: cluster.local

@@ -1,0 +1,55 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../base
+  - ./scylla
+patches:
+  # k3d's gateway is HTTP-only: no https listener, no redirect, no certificate
+  - patch: |
+      $patch: delete
+      apiVersion: cert-manager.io/v1
+      kind: Certificate
+      metadata:
+        name: wildcard-tls
+        namespace: gateway
+  - patch: |
+      $patch: delete
+      apiVersion: gateway.networking.k8s.io/v1
+      kind: HTTPRoute
+      metadata:
+        name: https-redirect
+        namespace: gateway
+  # The test op fails the render if the https listener moves
+  - target:
+      kind: Gateway
+      name: shared-gateway
+    patch: |
+      - op: test
+        path: /spec/listeners/1/name
+        value: https
+      - op: remove
+        path: /spec/listeners/1
+  - target:
+      kind: HTTPRoute
+    patch: |
+      - op: replace
+        path: /spec/parentRefs/0/sectionName
+        value: http
+  - patch: |
+      apiVersion: gateway.networking.k8s.io/v1
+      kind: HTTPRoute
+      metadata:
+        name: flux-web
+        namespace: flux-system
+      spec:
+        hostnames:
+          - flux.k3d.localhost
+  - patch: |
+      apiVersion: gateway.networking.k8s.io/v1
+      kind: HTTPRoute
+      metadata:
+        name: kiali
+        namespace: istio-system
+      spec:
+        hostnames:
+          - kiali.k3d.localhost

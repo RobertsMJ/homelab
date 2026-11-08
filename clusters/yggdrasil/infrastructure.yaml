@@ -28,7 +28,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./infrastructure/controllers
+  path: ./infrastructure/controllers/yggdrasil
   prune: true
   wait: true
 ---
@@ -46,6 +46,6 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./infrastructure/configs
+  path: ./infrastructure/configs/yggdrasil
   prune: true
   wait: true

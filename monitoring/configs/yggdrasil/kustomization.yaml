@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../base
+patches:
+  - patch: |
+      apiVersion: gateway.networking.k8s.io/v1
+      kind: HTTPRoute
+      metadata:
+        name: grafana
+        namespace: monitoring
+      spec:
+        hostnames:
+          - grafana.yggdrasil.home
+  - patch: |
+      apiVersion: gateway.networking.k8s.io/v1
+      kind: HTTPRoute
+      metadata:
+        name: prometheus
+        namespace: monitoring
+      spec:
+        hostnames:
+          - prometheus.yggdrasil.home

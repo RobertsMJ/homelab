@@ -1,0 +1,8 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: scylla
+  namespace: scylla-operator
+spec:
+  interval: 24h
+  url: https://scylla-operator-charts.storage.googleapis.com/stable

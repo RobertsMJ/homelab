@@ -1,0 +1,10 @@
+# Throwaway credentials for the local dev cluster only; never reuse on a real cluster
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana-admin
+  namespace: monitoring
+type: Opaque
+stringData:
+  admin-user: admin
+  admin-password: admin
