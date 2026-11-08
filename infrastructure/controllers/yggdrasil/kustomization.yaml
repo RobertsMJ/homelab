@@ -16,5 +16,3 @@ patches:
               external_services:
                 grafana:
                   external_url: https://grafana.yggdrasil.home
-                prometheus:
-                  external_url: https://prometheus.yggdrasil.home
