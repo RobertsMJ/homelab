@@ -16,3 +16,11 @@ spec:
         - name: shared-gateway
           namespace: gateway
           sectionName: https
+    apps:
+      run-sim:
+        # Ubuntu 26.04 stacks container AppArmor labels, so the default profile denies
+        # in-container signals and run-sim can't kill simc. Drop once k3s ships
+        # the containerd fix: https://github.com/containerd/containerd/issues/14485
+        securityContext:
+          appArmorProfile:
+            type: Unconfined
