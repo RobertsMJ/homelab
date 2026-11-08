@@ -5,9 +5,6 @@ metadata:
   namespace: gateway
 spec:
   secretName: wildcard-tls
-  dnsNames:
-    - yggdrasil.home
-    - "*.yggdrasil.home"
   issuerRef:
     kind: ClusterIssuer
     name: yggdrasil-ca

@@ -8,8 +8,6 @@ spec:
     - name: shared-gateway
       namespace: gateway
       sectionName: https
-  hostnames:
-    - grafana.yggdrasil.home
   rules:
     - backendRefs:
         - name: kube-prometheus-stack-grafana

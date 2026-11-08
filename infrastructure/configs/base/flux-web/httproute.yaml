@@ -8,8 +8,6 @@ spec:
     - name: shared-gateway
       namespace: gateway
       sectionName: https
-  hostnames:
-    - flux.yggdrasil.home
   rules:
     - matches:
         - path:

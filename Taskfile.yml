@@ -6,7 +6,7 @@ vars:
   # Override to target a subset: task diff CLUSTERS=yggdrasil
   CLUSTERS:
     sh: find clusters -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort
-  # Every dir with a kustomization.yaml (infrastructure/*, apps/*, and their children)
+  # Every dir with a kustomization.yaml, including bases and per-cluster overlays
   KUSTOMIZE_DIRS:
     sh: find . -name kustomization.yaml -not -path './.git/*' -printf '%h\n' | sort
 env:
@@ -17,7 +17,7 @@ tasks:
   install-deps:
     desc: Install dependencies
     cmds:
-      - brew install helm kubeconform fluxcd/tap/flux controlplaneio-fluxcd/tap/flux-operator kubectx age sops
+      - brew install helm kubeconform fluxcd/tap/flux controlplaneio-fluxcd/tap/flux-operator kubectx age sops yq
       - go install github.com/google/yamlfmt/cmd/yamlfmt@latest
       - git config core.hooksPath .githooks
   bootstrap:
@@ -42,6 +42,14 @@ tasks:
         cmd: flux-operator build instance -f clusters/{{.ITEM}}/flux-instance.yaml > /dev/null
       - for: {var: KUSTOMIZE_DIRS}
         cmd: kubectl kustomize {{.ITEM}} | kubeconform $KUBECONFORM_FLAGS
+      # The https listener has no hostname, so an HTTPRoute without hostnames catches every Host. Bases omit hostnames on purpose; each cluster's rendered paths must not.
+      - for: {var: CLUSTERS}
+        cmd: |
+          missing=""
+          for p in $(yq ea -N 'select(.kind == "Kustomization" and .apiVersion == "kustomize.toolkit.fluxcd.io/v1") | .spec.path' clusters/{{.ITEM}}/*.yaml); do
+            missing="$missing$(kubectl kustomize "$p" | yq -N 'select(.kind == "HTTPRoute" and (.spec.parentRefs | any_c(.name == "shared-gateway" and (.sectionName // "https") == "https")) and ((.spec.hostnames // []) | length) == 0) | " " + .metadata.namespace + "/" + .metadata.name')"
+          done
+          if [ -n "$missing" ]; then echo "{{.ITEM}}: HTTPRoutes on the https listener without hostnames:$missing" >&2; exit 1; fi
   diff:
     desc: Diff the local tree against each live cluster (server-side dry run)
     cmds:
