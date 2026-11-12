@@ -108,7 +108,7 @@ spec:
   values:
     image:
       repository: ghcr.io/nats-nui/nui
-      tag: "0.10.x"
+      tag: "0.10.0"
       pullPolicy: IfNotPresent
     autoloadContexts: true
     contextsVolume:
