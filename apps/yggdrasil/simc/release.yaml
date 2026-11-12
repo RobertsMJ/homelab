@@ -5,13 +5,9 @@ metadata:
   namespace: simc
 spec:
   interval: 30m
-  chart:
-    spec:
-      chart: simc
-      version: ">=0.1.0-0"
-      sourceRef:
-        kind: HelmRepository
-        name: simc
+  chartRef:
+    kind: OCIRepository
+    name: simc
   values:
     gateway:
       hostnames:
