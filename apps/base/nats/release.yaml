@@ -101,14 +101,14 @@ spec:
   chart:
     spec:
       chart: nui
-      version: "0.1.x"
+      version: "0.1.6"
       sourceRef:
         kind: HelmRepository
         name: nui
   values:
     image:
       repository: ghcr.io/nats-nui/nui
-      tag: "0.10.0"
+      tag: 0.10.0
       pullPolicy: IfNotPresent
     autoloadContexts: true
     contextsVolume:

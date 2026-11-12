@@ -5,31 +5,15 @@
     // `# renovate: datasource=... depName=...` above a *_VERSION env var in a workflow
     "customManagers:githubActionsVersions",
   ],
-  // Flux manifests aren't named gotk-components.yaml. Scan every YAML file; files without Flux kinds yield nothing.
-  // Covers HelmRelease charts (HelmRepository, incl. type: oci), images in HelmRelease values,
-  // OCIRepository/GitRepository ref.tag, and Flux Kustomization images.
   flux: {
-    managerFilePatterns: ["/\\.ya?ml$/"],
+    managerFilePatterns: ["/\\.yaml$/"],
   },
-  // Plain manifests (Deployment, StatefulSet, CronJob...) with `image: repo:tag`
   kubernetes: {
     managerFilePatterns: ["/\\.ya?ml$/"],
   },
   customManagers: [
     {
-      // The flux manager skips OCIRepositories that use ref.semver
-      customType: "jsonata",
-      description: "OCIRepository ref.semver",
-      fileFormat: "yaml",
-      managerFilePatterns: ["/\\.ya?ml$/"],
-      matchStrings: [
-        '$[kind = "OCIRepository" and $exists(spec.ref.semver)].{ "depName": $substringAfter(spec.url, "oci://"), "currentValue": spec.ref.semver }',
-      ],
-      datasourceTemplate: "docker",
-      versioningTemplate: "npm",
-    },
-    {
-      // e.g. CRD bundles. The kustomize manager already handles `github.com/org/repo//path?ref=vX`.
+      // Gateway API CRD bundles in kustomize resources
       customType: "regex",
       description: "GitHub release assets in kustomize resources",
       managerFilePatterns: ["/(^|/)kustomization\\.ya?ml$/"],
@@ -42,27 +26,9 @@
   packageRules: [
     {
       matchDepNames: ["kubernetes-sigs/gateway-api"],
-      // Let fresh .0 releases settle before a PR opens
       minimumReleaseAge: "14 days",
       prBodyNotes: [
-        "⚠️ **Minor upgrades are one-way.** The new `safe-upgrades` ValidatingAdmissionPolicy blocks applying older minor versions, so reverting won't roll back. Check that the installed Istio release supports this Gateway API version before merging.",
-      ],
-    },
-    {
-      // The validate workflow exercises every one of these, so a green run is a real test
-      matchFileNames: [".github/workflows/**"],
-      groupName: "CI tooling",
-      automerge: true,
-      // Renovate merges once checks are green; GitHub-native automerge would need branch protection
-      platformAutomerge: false,
-      minimumReleaseAge: "3 days",
-    },
-    {
-      matchDepNames: ["factoriotools/factorio"],
-      // Only stable-X.Y.Z tags. Excludes experimental builds (plain X.Y.Z only) and the -rootless variants.
-      versioning: "regex:^stable-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
-      prBodyNotes: [
-        "⚠️ Players must be on the same Factorio version to connect, and saves can't be loaded by older versions, so this can't be rolled back once the server saves.",
+        "Check that the installed Istio release supports this Gateway API version before merging.",
       ],
     },
   ],
