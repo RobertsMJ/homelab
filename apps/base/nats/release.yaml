@@ -20,25 +20,22 @@ spec:
           enabled: true
           pvc:
             size: 1Gi
-            storageClassName: local-path
         memoryStore:
           enabled: true
-          # Keep well below the container memory limit
           maxSize: 64Mi
-      # Single node cluster, so clustering adds overhead without any HA benefit
       cluster:
         enabled: false
+    # https://github.com/nats-io/k8s/tree/main/helm/charts/nats#nats-container-resources
     container:
       env:
         GOMEMLIMIT: 200MiB
       resources:
         requests:
-          cpu: 50m
-          memory: 128Mi
+          cpu: 250m
+          memory: 256Mi
         limits:
           cpu: 250m
           memory: 256Mi
-    # Sidecar exposing prometheus metrics; the PodMonitor lives in monitoring/configs/nats
     promExporter:
       enabled: true
       merge:
@@ -58,7 +55,6 @@ spec:
         - op: replace
           path: /args/6
           value: -use_internal_server_name
-    # nui covers interactive use
     natsBox:
       enabled: false
 ---
@@ -110,10 +106,9 @@ spec:
         kind: HelmRepository
         name: nui
   values:
-    # The chart defaults to the mutable latest tag
     image:
       repository: ghcr.io/nats-nui/nui
-      tag: "0.10.0"
+      tag: "0.10.x"
       pullPolicy: IfNotPresent
     autoloadContexts: true
     contextsVolume:
