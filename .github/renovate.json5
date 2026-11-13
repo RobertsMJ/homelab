@@ -31,5 +31,26 @@
         "Check that the installed Istio release supports this Gateway API version before merging.",
       ],
     },
+    {
+      matchFileNames: [".github/workflows/**"],
+      matchUpdateTypes: ["minor", "patch", "digest"],
+      automerge: true,
+    },
+    {
+      matchDepNames: [
+        "ghcr.io/prometheus-community/charts/kube-prometheus-stack",
+        "nui",
+        "ghcr.io/nats-nui/nui",
+      ],
+      matchUpdateTypes: ["minor", "patch"],
+      minimumReleaseAge: "2 days",
+      automerge: true,
+    },
+    {
+      matchDepNames: ["quay.io/jetstack/charts/cert-manager"],
+      matchUpdateTypes: ["patch"],
+      minimumReleaseAge: "2 days",
+      automerge: true,
+    },
   ],
 }
