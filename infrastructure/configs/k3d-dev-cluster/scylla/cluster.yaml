@@ -14,7 +14,10 @@ metadata:
   name: dev-cluster
   namespace: scylla
 spec:
+  # renovate: datasource=docker depName=scylladb/scylla
   version: 2026.2.5
+  # renovate: datasource=docker depName=scylladb/scylla-manager-agent
+  agentVersion: 3.13.0
   developerMode: true
   datacenter:
     name: dev
