@@ -25,7 +25,7 @@
     {
       // scylla clusters
       customType: "regex",
-      managerFilePatterns: ["/(^|/)clusters?/.+\\.ya?ml$/"],
+      managerFilePatterns: ["/\\.ya?ml$/"],
       matchStrings: [
         "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)(?: versioning=(?<versioning>.*?))?\\s+(?:version|agentVersion):\\s*[\"']?(?<currentValue>[^\"'\\s]+)[\"']?",
       ],
@@ -63,9 +63,10 @@
     },
     {
       matchDatasources: ["docker"],
-      matchPackageNames: ["scylladb/scylla"],
+      matchPackageNames: ["scylladb/scylla", "scylladb/scylla-manager-agent"],
       allowedVersions: "/^[0-9]{4}\\.[0-9]+\\.[0-9]+$/",
       separateMultipleMinor: true,
+      separateMultipleMajor: true,
       automerge: false,
     },
   ],
