@@ -15,7 +15,7 @@ metadata:
   namespace: scylla
 spec:
   # renovate: datasource=docker depName=scylladb/scylla
-  version: 2026.3.5
+  version: 2026.3.6
   # renovate: datasource=docker depName=scylladb/scylla-manager-agent
   agentVersion: 3.13.0
   developerMode: true
