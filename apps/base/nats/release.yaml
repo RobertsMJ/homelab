@@ -70,7 +70,7 @@ spec:
   chart:
     spec:
       chart: nack
-      version: "0.35.x"
+      version: "0.36.x"
       sourceRef:
         kind: HelmRepository
         name: nats
