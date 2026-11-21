@@ -49,6 +49,7 @@
       matchPackageNames: ["ghcr.io/robertsmj/charts/simc"],
       versioning: "semver",
       ignoreUnstable: false,
+      automerge: true,
     },
     {
       matchDepNames: [
