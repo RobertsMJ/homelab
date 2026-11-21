@@ -41,14 +41,14 @@
       ],
     },
     {
-      matchFileNames: ["ghcr.io/robertsmj/charts/simc"],
+      matchFileNames: [".github/workflows/**"],
       matchUpdateTypes: ["minor", "patch", "digest"],
       automerge: true,
     },
     {
-      matchFileNames: [".github/workflows/**"],
-      matchUpdateTypes: ["minor", "patch", "digest"],
-      automerge: true,
+      matchPackageNames: ["ghcr.io/robertsmj/charts/simc"],
+      versioning: "semver",
+      ignoreUnstable: false,
     },
     {
       matchDepNames: [
