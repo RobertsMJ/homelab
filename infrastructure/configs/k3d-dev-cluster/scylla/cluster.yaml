@@ -35,29 +35,3 @@ spec:
           limits:
             cpu: 1
             memory: 1Gi
-      - name: rack2
-        members: 1
-        scyllaConfig: scylladb-config
-        storage:
-          capacity: 1Gi
-          storageClassName: local-path
-        resources:
-          requests:
-            cpu: 10m
-            memory: 1Gi
-          limits:
-            cpu: 1
-            memory: 1Gi
-      - name: rack3
-        members: 1
-        scyllaConfig: scylladb-config
-        storage:
-          capacity: 1Gi
-          storageClassName: local-path
-        resources:
-          requests:
-            cpu: 10m
-            memory: 1Gi
-          limits:
-            cpu: 1
-            memory: 1Gi
