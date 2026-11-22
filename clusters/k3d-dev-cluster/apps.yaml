@@ -13,5 +13,33 @@ spec:
     kind: GitRepository
     name: flux-system
   path: ./apps/k3d-dev-cluster
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
   prune: true
   wait: true
+---
+# Onboards simc as a tenant of the shared Scylla cluster: its keyspace and owner role.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: simc-db
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: infra-configs
+  interval: 1h
+  retryInterval: 2m
+  timeout: 5m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./apps/k3d-dev-cluster/simc-db
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+  prune: true
+  wait: true
+  force: true

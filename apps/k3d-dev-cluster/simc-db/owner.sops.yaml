@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: simc-scylla-owner
+    namespace: scylla
+type: Opaque
+stringData:
+    username: ENC[AES256_GCM,data:QEBMZg==,iv:B6C6T32A7yjnNQ0Qoy9cFf/6RPVMmtquhuCN+ppbu00=,tag:f7C70o5/hYZCOORC/LpyXA==,type:str]
+    password: ENC[AES256_GCM,data:0hpXGu4VFKnY7XgrDo846+EiSawvCqNzeiwHdv9mIsDOFGPHHrnQAFYQq7gpUkHqEyApB6fZr5c4R27BbIUqkg==,iv:Q80xQA/1vVcXIqCN3Po6uE0RfJOgkq+N4NJA6Hjb+mU=,tag:VgK2lpd8U0+tdqe5cxijJA==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBTaUx6U2JsYlVYNTJjY0M0
+            M05RUVMzc090d3BydjkrUjErSTdMNlY4TlZvCnRabGo3TDVZZXJkM3JFWFFlSjN5
+            RExUQnJucXhtNm10SFJGSTNGUzY2eUUKLS0tIGV0Z2hLalh1SzZYVk1JU0xmQTdw
+            K2JJSXNuaFFmOXBRTmhLekpCYTJaRjAKPovsWLQiE/vd5+i/HzsvRObHYPNk1f6w
+            7XsKVcrPxIuEjlgp7xBY8QbkWEWMcygoGC23uqkkiXXHKnJ/ktSxmw==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1usrqdq9pyv2fcwrc8etezfzqmeefq7llftjtzz9ws36p4cp6p3eqjqeyjf
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-11-22T20:35:23Z"
+    mac: ENC[AES256_GCM,data:T5jnWwdo6WTkLubzxlTOrrsJtLZOErCsj+RhtliB5T+PgCiwtRHDhr3bZ8T4nuAdJuxtEiG3xZDvC7cQsVrz9T46FCSzerVAppQ8XR4PNu4OeP62ulBqUSfrDivcKegCtdEGoJMuOhwIzjy/wIhL7ZzEgQkRaXGYmIlaS8/5Z90=,iv:Uzyd4GiEDJz9edcOHtK0BgOAlaepgmgbyfKKzsxQZfw=,tag:6prSMZ8ggzdBkPvnpWJZkA==,type:str]
+    version: 3.13.3

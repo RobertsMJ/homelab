@@ -1,0 +1,55 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: simc-keyspace
+  namespace: scylla
+spec:
+  # dependsOn infra-configs means Scylla was Available when this was applied; retries cover a node restarting since
+  backoffLimit: 3
+  # Deleting the finished Job (complete or failed) lets Flux recreate it on its next reconcile, so the script
+  # reruns periodically: failures retry, a wiped keyspace is recreated, and rotated passwords are applied.
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: provision
+          # Matches the cluster's version for cqlsh
+          image: scylladb/scylla:2026.3.6
+          command: ["/bin/bash", "/scripts/provision.sh"]
+          env:
+            - name: SCYLLA_HOST
+              value: dev-cluster-client.scylla.svc
+            - name: ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: scylla-superuser
+                  key: username
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: scylla-superuser
+                  key: password
+            - name: OWNER_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: simc-scylla-owner
+                  key: username
+            - name: OWNER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: simc-scylla-owner
+                  key: password
+          resources:
+            requests:
+              cpu: 10m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
+          volumeMounts:
+            - name: script
+              mountPath: /scripts
+      volumes:
+        - name: script
+          configMap:
+            name: simc-keyspace-script

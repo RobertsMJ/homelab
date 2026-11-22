@@ -1,8 +1,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-# simc is deployed into its namespace from the simc-cloud working tree, not by Flux
+# The simc app is deployed from the simc-cloud working tree; Flux only supplies its namespace and credentials
 resources:
   - ../base
+  - ./simc
 patches:
   - target:
       kind: HTTPRoute

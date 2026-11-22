@@ -47,5 +47,15 @@ spec:
     kind: GitRepository
     name: flux-system
   path: ./infrastructure/configs/k3d-dev-cluster
+  # The default health check passes while the operator is still adding nodes; dependents need the whole cluster
+  healthCheckExprs:
+    - apiVersion: scylla.scylladb.com/v1
+      kind: ScyllaCluster
+      current: >-
+        status.observedGeneration == metadata.generation && status.conditions.exists(c, c.type == 'Available' && c.status == 'True') && status.conditions.exists(c, c.type == 'Progressing' && c.status == 'False')
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
   prune: true
   wait: true

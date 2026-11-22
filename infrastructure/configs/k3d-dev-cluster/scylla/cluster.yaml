@@ -9,7 +9,7 @@ data:
   # It must match the password in superuser.sops.yaml; regenerate it from there with:
   #   sops -d --extract '["stringData"]["password"]' superuser.sops.yaml | openssl passwd -6 -stdin
   # Rotating the admin password is manual, since GitOps can only set it at bootstrap:
-  #   1. ALTER ROLE admin WITH PASSWORD '<new>'; in cqlsh, logged in as admin
+  #   1. ALTER ROLE admin WITH PASSWORD = '<new>'; in cqlsh, logged in as admin
   #   2. sops edit superuser.sops.yaml to set <new>, regenerate the hash above, and commit both together.
   #      simc-keyspace fails auth until this lands, since it logs in with the Secret.
   scylla.yaml: |
