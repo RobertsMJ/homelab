@@ -3,4 +3,5 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./operator-config.yaml
+  - ./superuser.sops.yaml
   - ./cluster.yaml
