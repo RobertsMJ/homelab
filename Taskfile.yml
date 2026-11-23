@@ -9,7 +9,7 @@ vars:
   UNSCOPED_ROUTES: 'select(.kind == "HTTPRoute" and ((.spec.hostnames // []) | length) == 0 and (.metadata.namespace + "/" + .metadata.name) != "gateway/https-redirect") | " " + .metadata.namespace + "/" + .metadata.name'
 env:
   KUBECONFORM_FLAGS: >-
-    -strict -skip Secret,CustomResourceDefinition,ScyllaOperatorConfig -summary -schema-location default -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{`{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}`}}.json
+    -strict -skip Secret,CustomResourceDefinition -summary -schema-location default -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{`{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}`}}.json
 tasks:
   install-deps:
     desc: Install dependencies

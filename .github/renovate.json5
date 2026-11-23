@@ -22,15 +22,6 @@
       ],
       datasourceTemplate: "github-releases",
     },
-    {
-      // scylla clusters
-      customType: "regex",
-      managerFilePatterns: ["/\\.ya?ml$/"],
-      matchStrings: [
-        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)(?: versioning=(?<versioning>.*?))?\\s+(?:version|agentVersion):\\s*[\"']?(?<currentValue>[^\"'\\s]+)[\"']?",
-      ],
-      versioningTemplate: "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
-    },
   ],
   packageRules: [
     {
@@ -66,14 +57,6 @@
       matchUpdateTypes: ["patch"],
       minimumReleaseAge: "2 days",
       automerge: true,
-    },
-    {
-      matchDatasources: ["docker"],
-      matchPackageNames: ["scylladb/scylla", "scylladb/scylla-manager-agent"],
-      allowedVersions: "/^[0-9]{4}\\.[0-9]+\\.[0-9]+$/",
-      separateMultipleMinor: true,
-      separateMultipleMajor: true,
-      automerge: false,
     },
   ],
 }

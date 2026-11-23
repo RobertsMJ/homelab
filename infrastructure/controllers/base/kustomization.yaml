@@ -5,4 +5,4 @@ resources:
   - ./cert-manager
   - ./keda
   - ./kiali
-  - ./scylla-operator
+  - ./cloudnative-pg

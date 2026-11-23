@@ -3,7 +3,6 @@ kind: Kustomization
 # The simc app is deployed from the simc-cloud working tree; Flux only supplies its namespace and credentials
 resources:
   - ../base
-  - ./simc
 patches:
   - target:
       kind: HTTPRoute

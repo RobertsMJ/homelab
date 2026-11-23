@@ -1,7 +1,0 @@
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-namespace: simc
-# Credentials for the owner role the simc-db Job creates; the chart consumes this by name
-resources:
-  # Must match simc-db/owner.sops.yaml, which the Job sets the role's password from; a mismatch shows up as auth failures here
-  - ./scylla-owner.sops.yaml

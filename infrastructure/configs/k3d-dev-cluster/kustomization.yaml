@@ -2,7 +2,6 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ../base
-  - ./scylla
 patches:
   # k3d's gateway is HTTP-only: no https listener, no redirect, no certificate
   - patch: |
