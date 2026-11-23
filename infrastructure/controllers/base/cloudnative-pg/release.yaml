@@ -12,12 +12,3 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: cnpg
-  install:
-    crds: Create
-  upgrade:
-    crds: CreateReplace
-  values:
-    monitoring:
-      podMonitorEnabled: true
-      grafanaDashboard:
-        create: true
