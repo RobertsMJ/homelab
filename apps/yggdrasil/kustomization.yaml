@@ -14,3 +14,19 @@ patches:
       spec:
         hostnames:
           - nui.yggdrasil.home
+  - patch: |
+      apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      metadata:
+        name: simc
+        namespace: simc
+      spec:
+        podSecurityContext:
+          runAsUser: 26
+          runAsGroup: 26
+          fsGroup: 26
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+          appArmorProfile:
+            type: Unconfined
