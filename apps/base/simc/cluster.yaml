@@ -4,7 +4,7 @@ metadata:
   name: simc
   namespace: simc
 spec:
-  imageName: ghcr.io/cloudnative-pg/postgresql:19.0-minimal-trixie
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.7-minimal-trixie
   instances: 1
   storage:
     size: 1Gi
