@@ -1,0 +1,13 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: simc
+  namespace: simc
+spec:
+  imageName: ghcr.io/cloudnative-pg/postgresql:19.0-minimal-trixie
+  instances: 1
+  storage:
+    size: 1Gi
+  bootstrap:
+    initdb:
+      database: simc

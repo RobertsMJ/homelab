@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: simc-app
+  namespace: simc
+type: kubernetes.io/basic-auth
+stringData:
+  username: simc
+  password: dev
+  host: simc-rw
+  port: "5432"
+  dbname: simc
+  uri: postgresql://simc:dev@simc-rw.simc:5432/simc

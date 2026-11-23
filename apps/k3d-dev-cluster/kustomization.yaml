@@ -3,6 +3,7 @@ kind: Kustomization
 # The simc app is deployed from the simc-cloud working tree; Flux only supplies its namespace and credentials
 resources:
   - ../base
+  - ./simc
 patches:
   - target:
       kind: HTTPRoute
@@ -19,3 +20,14 @@ patches:
       spec:
         hostnames:
           - nui.k3d.localhost
+  - patch: |
+      apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      metadata:
+        name: simc
+        namespace: simc
+      spec:
+        bootstrap:
+          initdb:
+            secret:
+              name: simc-app
