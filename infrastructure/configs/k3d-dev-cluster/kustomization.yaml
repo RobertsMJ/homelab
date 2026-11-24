@@ -1,7 +1,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ../base
+  - ../base/shared-gateway
+  - ../base/flux-web
 patches:
   # k3d's gateway is HTTP-only: no https listener, no redirect, no certificate
   - patch: |
@@ -43,12 +44,3 @@ patches:
       spec:
         hostnames:
           - flux.k3d.localhost
-  - patch: |
-      apiVersion: gateway.networking.k8s.io/v1
-      kind: HTTPRoute
-      metadata:
-        name: kiali
-        namespace: istio-system
-      spec:
-        hostnames:
-          - kiali.k3d.localhost
